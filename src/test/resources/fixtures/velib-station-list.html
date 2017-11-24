@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Liste des stations V�lib' - Paris � V�lo</title>
+    <meta name="dc.description"
+          content="Statistiques sur le V�lib : stations pleines, vides, v�los disponibles, bornes bloqu�es..."/>
+    <meta name="description"
+          content="Statistiques sur le V�lib : stations pleines, vides, v�los disponibles, bornes bloqu�es..."/>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <style type="text/css">
+        .header_link {
+            font-weight: bold;
+            text-shadow: 0 1px 0 #fff;
+            text-shadow: 0 1px 0 #fff;
+            color: #5a5a5a;
+        }
+
+        a.header_link:hover {
+            color: #0000ff;
+        }
+
+        .header_div {
+            padding: 0px 20px;
+            background-color: #f0f0f0;
+            background: -webkit-linear-gradient(top, #fff 0%, #f9f9f9 49%, #f2f2f2 51%, #f0f0f0 100%);
+            background: -moz-linear-gradient(center top, #FFFFFF 0%, #F9F9F9 50%, #F2F2F2 50.1%, #F0F0F0 100%) repeat scroll 0 0 transparent;
+            padding-left: 0;
+            padding-right: 0;
+            -webkit-border-radius: 0;
+            border-radius: 0;
+            border: 0;
+            border-bottom: 1px solid #d0d0d0;
+        }
+
+        html {
+            height: 100%
+        }
+
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0
+        }
+
+        #map_canvas {
+            height: 100%
+        }
+
+        a {
+            text-decoration: none;
+            color: #0000FF;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        body {
+            font-size: 15px;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        input, textarea {
+            font-size: 15px;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            border: 1px Solid #cccccc;
+        }
+
+        .table1 {
+            width: 100%;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            margin: auto;
+            border-spacing: 0px;
+        }
+
+        .table1 tbody {
+            background: #FFFFFF;
+        }
+
+        .table1 tbody td {
+            border-top: 1px #ccc dashed;
+        }
+
+        .table1 thead td {
+            border-bottom: 1px #ccc solid;
+            font-weight: bold;
+            background: #EEEEEE;
+        }
+
+        .table1 tfoot td {
+            border-top: 1px #ccc solid;
+            background: #EEEEEE;
+        }
+
+        .table1 td {
+            padding: 3px;
+        }
+    </style>
+
+
+</head>
+<body>
+<div class="header_div">
+    <table id="header_table" style="width:100%;">
+        <tr>
+            <td><a href="/" class="header_link" style="color:#0000ff">Paris � v�lo : <span id="stats_velib">carte des stations</span></a>
+                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            </td>
+            <td><a href="/liste-stations-velib.htm" class="header_link">Liste des stations V�lib'</a></td>
+            <td><a href="/iphone.php" class="header_link">iPhone & Android</a></td>
+            <td><a href="/export.php" class="header_link">Ressources</a></td>
+            <td><a href="/contact.php" class="header_link">Contact</a></td>
+            <td style="text-align:right;font-style:italic;color:#AAAAAA;">Site non officiel. V�lib' est une marque
+                d�pos�e.
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div style="align:center; width: 990px;margin:0 auto;margin-top:10px;">
+    <div style="text-align:center;font-weight:bold;color:#1d95cb;font-size:20px;padding-bottom:20px;">Liste des stations
+        V�lib'
+    </div>
+
+    <div id="the_form" style="margin-bottom:30px;">
+        <form method="post" name="formulaire" action="/liste-stations-velib/to-2.htm">
+            <input type="hidden" name="f" value="1"/>
+            <strong>Filtres</strong> &nbsp; &nbsp; Arrondissement : <select name="arrdt"
+                                                                            onchange="document.formulaire.submit();">
+            <option value=""></option>
+            <option value="1">1er</option>
+            <option value="2">2e</option>
+            <option value="3">3e</option>
+            <option value="4">4e</option>
+            <option value="5">5e</option>
+            <option value="6">6e</option>
+            <option value="7">7e</option>
+            <option value="8">8e</option>
+            <option value="9">9e</option>
+            <option value="10">10e</option>
+            <option value="11">11e</option>
+            <option value="12">12e</option>
+            <option value="13">13e</option>
+            <option value="14">14e</option>
+            <option value="15">15e</option>
+            <option value="16">16e</option>
+            <option value="17">17e</option>
+            <option value="18">18e</option>
+            <option value="19">19e</option>
+            <option value="20">20e</option>
+        </select> &nbsp; &nbsp; Mot-cl�(s) : <input type="text" name="mcle" value="" style="width:250px;"/> &nbsp;
+            &nbsp; <input type="submit" value="Afficher"/>
+        </form>
+    </div>
+    <a name="t_1"></a>
+    <table class="table1" style="">
+        <thead>
+        <tr>
+            <td>Num�ro <a href="/liste-stations-velib/to-0.htm"><img src="/images/puce_up.gif"
+                                                                     style="border:0px;width:11px;height:11px;"
+                                                                     alt="Tri croissant" title="Tri croissant"/></a> <a
+                    href="/liste-stations-velib/to-0/tr-1.htm"><img src="/images/puce_down.gif"
+                                                                    style="border:0px;width:11px;height:11px;"
+                                                                    alt="Tri d�croissant" title="Tri d�croissant"/></a>
+            </td>
+            <td>Station <a href="/liste-stations-velib.htm"><img src="/images/puce_up.gif"
+                                                                 style="border:0px;width:11px;height:11px;"
+                                                                 alt="Tri croissant" title="Tri croissant"/></a> <a
+                    href="/liste-stations-velib/tr-1.htm"><img src="/images/puce_down.gif"
+                                                               style="border:0px;width:11px;height:11px;"
+                                                               alt="Tri d�croissant" title="Tri d�croissant"/></a></td>
+            <td>Arrondissement <a href="/liste-stations-velib/to-2.htm"><img src="/images/puce_up_sel.gif"
+                                                                             style="border:0px;width:11px;height:11px;"
+                                                                             alt="Tri croissant" title="Tri croissant"/></a>
+                <a href="/liste-stations-velib/to-2/tr-1.htm"><img src="/images/puce_down.gif"
+                                                                   style="border:0px;width:11px;height:11px;"
+                                                                   alt="Tri d�croissant" title="Tri d�croissant"/></a>
+            </td>
+            <td>Mise en service <a href="/liste-stations-velib/to-3.htm"><img src="/images/puce_up.gif"
+                                                                              style="border:0px;width:11px;height:11px;"
+                                                                              alt="Tri croissant"
+                                                                              title="Tri croissant"/></a> <a
+                    href="/liste-stations-velib/to-3/tr-1.htm"><img src="/images/puce_down.gif"
+                                                                    style="border:0px;width:11px;height:11px;"
+                                                                    alt="Tri d�croissant" title="Tri d�croissant"/></a>
+            </td>
+        </tr>
+        </thead>
+        <tfoot>
+        <tr>
+            <td colspan="4">
+                <div style="width:50%;float:left;">R�ponses <strong>1</strong> � <strong>25</strong> sur
+                    <strong>1263</strong> stations V�lib'
+                </div>
+                <div style="float:left;text-align:right;">Page : <span class="cur_pge">&nbsp;1&nbsp;</span> <a
+                        href="/liste-stations-velib/p-2/to-2.htm">&nbsp;2&nbsp;</a> <a
+                        href="/liste-stations-velib/p-3/to-2.htm">&nbsp;3&nbsp;</a> <a
+                        href="/liste-stations-velib/p-4/to-2.htm">&nbsp;4&nbsp;</a> <a
+                        href="/liste-stations-velib/p-2/to-2.htm">&nbsp;<img src="/images/suivant1.gif"
+                                                                             style="border:0px;width:5px;height:9px;"
+                                                                             alt="Page suivante"/>&nbsp;</a> <a
+                        href="/liste-stations-velib/p-51/to-2.htm">&nbsp;<img src="/images/suivant1.gif"
+                                                                              style="border:0px;width:5px;height:9px;"
+                                                                              alt="Derni�re page"/><img
+                        src="/images/suivant1.gif" style="border:0px;width:5px;height:9px;" alt=""/></a></div>
+            </td>
+        </tr>
+        </tfoot>
+        <tbody>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td style="border-top:0px;">1001</td>
+            <td style="border-top:0px;"><a href="/detail-station-1001-ILE-DE-LA-CITE-PONT-NEUF.htm" class="visible"
+                                           title="D�tails sur la station V�lib'">ILE DE LA CITE PONT NEUF</a><br/><span
+                    style="color:#848484;font-style: italic;">41 quai de l'horloge</span></td>
+            <td style="border-top:0px;">1</td>
+            <td style="border-top:0px;">15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1002</td>
+            <td><a href="/detail-station-1002-PLACE-DU-CHATELET.htm" class="visible"
+                   title="D�tails sur la station V�lib'">PLACE DU CHATELET</a><br/><span
+                    style="color:#848484;font-style: italic;">14 avenue victoria</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1003</td>
+            <td><a href="/detail-station-1003-RIVOLI-SAINT-DENIS.htm" class="visible"
+                   title="D�tails sur la station V�lib'">RIVOLI SAINT DENIS</a><br/><span
+                    style="color:#848484;font-style: italic;">7 rue saint denis</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1004</td>
+            <td><a href="/detail-station-1004-MARGUERITE-DE-NAVARRE.htm" class="visible"
+                   title="D�tails sur la station V�lib'">MARGUERITE DE NAVARRE</a><br/><span
+                    style="color:#848484;font-style: italic;">2 rue des halles</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1005</td>
+            <td><a href="/detail-station-1005-LES-HALLES-SEBASTOPOL.htm" class="visible"
+                   title="D�tails sur la station V�lib'">LES HALLES - SEBASTOPOL</a><br/><span
+                    style="color:#848484;font-style: italic;">2 rue de la cossonerie</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1006</td>
+            <td><a href="/detail-station-1006-LES-HALLES-PIERRE-LESCOT.htm" class="visible"
+                   title="D�tails sur la station V�lib'">LES HALLES - PIERRE LESCOT</a><br/><span
+                    style="color:#848484;font-style: italic;">7 rue pierre lescot</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1007</td>
+            <td><a href="/detail-station-1007-ETIENNE-MARCEL.htm" class="visible" title="D�tails sur la station V�lib'">ETIENNE
+                MARCEL</a><br/><span style="color:#848484;font-style: italic;">5 rue de turbigo</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1008</td>
+            <td><a href="/detail-station-1008-LES-HALLES-SAINT-EUSTACHE.htm" class="visible"
+                   title="D�tails sur la station V�lib'">LES HALLES SAINT EUSTACHE</a><br/><span
+                    style="color:#848484;font-style: italic;">porte saint eustache face rue rambuteau</span></td>
+            <td>1</td>
+            <td>10/10/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1009</td>
+            <td><a href="/detail-station-1009-PONT-NEUF-14.htm" class="visible" title="D�tails sur la station V�lib'">PONT
+                NEUF - 14</a><br/><span style="color:#848484;font-style: italic;">14 rue du pont neuf</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1010</td>
+            <td><a href="/detail-station-1010-PONT-NEUF.htm" class="visible" title="D�tails sur la station V�lib'">PONT
+                NEUF</a><br/><span style="color:#848484;font-style: italic;">10 rue du pont neuf</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1011</td>
+            <td><a href="/detail-station-1011-RIVOLI-MAIRIE-DU-1ER.htm" class="visible"
+                   title="D�tails sur la station V�lib'">RIVOLI MAIRIE DU 1ER</a><br/><span
+                    style="color:#848484;font-style: italic;">46 rue de l&apos;arbre sec</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1012</td>
+            <td><a href="/detail-station-1012-BOURSE-DU-COMMERCE.htm" class="visible"
+                   title="D�tails sur la station V�lib'">BOURSE DU COMMERCE</a><br/><span
+                    style="color:#848484;font-style: italic;">29 rue jean-jacques rousseau</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1013</td>
+            <td><a href="/detail-station-1013-SAINT-HONORE.htm" class="visible" title="D�tails sur la station V�lib'">SAINT
+                HONORE</a><br/><span style="color:#848484;font-style: italic;">192 rue saint honore</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1014</td>
+            <td><a href="/detail-station-1014-RIVOLI-MUSEE-DU-LOUVRE.htm" class="visible"
+                   title="D�tails sur la station V�lib'">RIVOLI MUSEE DU LOUVRE</a><br/><span
+                    style="color:#848484;font-style: italic;">5 rue de l&apos; echelle</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1015</td>
+            <td><a href="/detail-station-1015-PLACE-ANDRE-MALRAUX.htm" class="visible"
+                   title="D�tails sur la station V�lib'">PLACE ANDRE MALRAUX</a><br/><span
+                    style="color:#848484;font-style: italic;">2 place andre malraux</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1016</td>
+            <td><a href="/detail-station-1016-OPERA-PYRAMIDES.htm" class="visible"
+                   title="D�tails sur la station V�lib'">OPERA PYRAMIDES</a><br/><span
+                    style="color:#848484;font-style: italic;">27 rue therese</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1017</td>
+            <td><a href="/detail-station-1017-SAINT-HONORE-215.htm" class="visible"
+                   title="D�tails sur la station V�lib'">SAINT HONORE - 215</a><br/><span
+                    style="color:#848484;font-style: italic;">215 rue saint honore</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1018</td>
+            <td><a href="/detail-station-1018-RIVOLI-TUILERIE.htm" class="visible"
+                   title="D�tails sur la station V�lib'">RIVOLI TUILERIE</a><br/><span
+                    style="color:#848484;font-style: italic;">2 rue d&apos;alger</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1019</td>
+            <td><a href="/detail-station-1019-SAINT-HONORE-VENDOME.htm" class="visible"
+                   title="D�tails sur la station V�lib'">SAINT HONORE VENDOME</a><br/><span
+                    style="color:#848484;font-style: italic;">237 rue saint honor�</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1020</td>
+            <td><a href="/detail-station-1020-RIVOLI-CONCORDE.htm" class="visible"
+                   title="D�tails sur la station V�lib'">RIVOLI CONCORDE</a><br/><span
+                    style="color:#848484;font-style: italic;">2 rue cambon</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1022</td>
+            <td><a href="/detail-station-1022-RUE-DE-LA-PAIX.htm" class="visible" title="D�tails sur la station V�lib'">RUE
+                DE LA PAIX</a><br/><span style="color:#848484;font-style: italic;">37 rue casanova</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1023</td>
+            <td><a href="/detail-station-1023-ANDRE-MALRAUX-MUSEE-DU-LOUVRE.htm" class="visible"
+                   title="D�tails sur la station V�lib'">ANDRE MALRAUX MUSEE DU LOUVRE</a><br/><span
+                    style="color:#848484;font-style: italic;">161 rue sainte honore</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1024</td>
+            <td><a href="/detail-station-1024-LOUVRE-COQ-HERON.htm" class="visible"
+                   title="D�tails sur la station V�lib'">LOUVRE COQ HERON</a><br/><span
+                    style="color:#848484;font-style: italic;">2 rue coq heron</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1025</td>
+            <td><a href="/detail-station-1025-TEMPLE-DE-LORATOIRE.htm" class="visible"
+                   title="D�tails sur la station V�lib'">TEMPLE DE L'ORATOIRE</a><br/><span
+                    style="color:#848484;font-style: italic;">2 rue de l&apos;oratoire</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        <tr onmouseover="this.bgColor='#eeeeee';" onmouseout="this.bgColor='#FFFFFF';">
+            <td>1026</td>
+            <td><a href="/detail-station-1026-COLONEL-DRIANT.htm" class="visible" title="D�tails sur la station V�lib'">COLONEL
+                DRIANT</a><br/><span style="color:#848484;font-style: italic;">12 rue du colonel driant</span></td>
+            <td>1</td>
+            <td>15/07/2007</td>
+        </tr>
+        </tbody>
+    </table>
+    <br/>
+    <span style="font-size:13px;">Filtre par arrondissement :
+<a href="/liste-stations-velib/p-1/to-2/a-1.htm">1er arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-2.htm">2e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-3.htm">3e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-4.htm">4e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-5.htm">5e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-6.htm">6e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-7.htm">7e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-8.htm">8e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-9.htm">9e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-10.htm">10e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-11.htm">11e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-12.htm">12e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-13.htm">13e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-14.htm">14e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-15.htm">15e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-16.htm">16e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-17.htm">17e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-18.htm">18e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-19.htm">19e arrondissement</a> - <a
+                href="/liste-stations-velib/p-1/to-2/a-20.htm">20e arrondissement</a>
+<br/><br/>
+Filtre par mot-cl�s : <a href="/liste-stations-velib/mc-place.htm">Places de Paris</a> - <a
+                href="/liste-stations-velib/mc-parc.htm">Parcs de Paris</a> - <a
+                href="/liste-stations-velib/mc-pont.htm">Ponts de Paris</a> - <a
+                href="/liste-stations-velib/mc-pyrenees.htm">Pyr�n�es</a>
+</span>
+
+    <br/><br/></div>
+
+</body>
+</html>
