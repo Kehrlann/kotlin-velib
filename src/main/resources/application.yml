@@ -1,2 +1,3 @@
 velib:
   stationListUrl: "http://www.parisavelo.net/liste-stations-velib"
+  pages: 51

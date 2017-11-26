@@ -5,5 +5,5 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationProperties("velib")
-data class VelibConfiguration(var stationListUrl: String = "test")
+data class VelibConfiguration(var stationListUrl: String = "test", var pages: Int = 51)
 // FIXME: nest configurations ?

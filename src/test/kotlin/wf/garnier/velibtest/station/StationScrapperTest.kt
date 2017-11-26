@@ -3,8 +3,7 @@ package wf.garnier.velibtest.station
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.mockito.Matchers
-import org.mockito.Matchers.any
-import org.mockito.Matchers.eq
+import org.mockito.Matchers.*
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -40,6 +39,20 @@ class StationScrapperTest {
         stationScrapper.getPage(12)
 
         verify(mockClient).getForObject(eq("test-url/p-12/to-2.html"), eq(String::class.java))
+    }
+
+    @Test
+    fun `it should get all pages`() {
+        val pages = 12
+        val stationScrapper = StationScrapper(mockClient, VelibConfiguration(pages = pages))
+        Mockito.`when`(mockClient.getForObject<String>(Matchers.anyString(), any()))
+                .thenReturn("")
+
+        stationScrapper.getAllStations()
+
+        (1..12).forEach {
+            verify(mockClient).getForObject(contains("/p-$it/"), any())
+        }
     }
 
     @Test

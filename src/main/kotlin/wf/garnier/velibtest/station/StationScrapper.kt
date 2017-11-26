@@ -20,7 +20,7 @@ class StationScrapper(
 
     internal fun getPage(i: Int) = client.getForObject(config.stationListUrl + "/p-$i/to-2.html", String::class.java)!!
 
-    fun getAllStations() = (1..51).map {
+    fun getAllStations() = (1..config.pages).map {
         getPage(it)
     }.flatMap {
         parseStationsFromPage(it)
