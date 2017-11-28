@@ -1,22 +1,14 @@
 package wf.garnier.velibtest.station
 
-import io.reactivex.Flowable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import org.mockito.Matchers
-import org.mockito.Matchers.*
 import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.scheduling.annotation.AsyncResult
-import org.springframework.util.concurrent.ListenableFuture
-import org.springframework.util.concurrent.ListenableFutureTask
 import org.springframework.web.client.AsyncRestTemplate
-import org.springframework.web.client.RestTemplate
 import wf.garnier.velibtest.VelibConfiguration
-import wf.garnier.velibtest.extensions.getFlowable
-import kotlin.reflect.KClass
 
 
 class StationScrapperTest {

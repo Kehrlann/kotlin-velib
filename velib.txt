@@ -1,0 +1,27 @@
+VELIB SHIT :
+http://www.velib.paris/service/stationdetails/paris/43008
+
+http://www.parisavelo.net/detail-station-43008-FONTENAY-VINCENNES.htm
+
+http://www.parisavelo.net/liste-stations-velib/p-51/to-2.htm
+
+http://www.parisavelo.net/stats.php
+    - Nombre de vélos : 13080
+
+Response sample for one station :
+<?xml version="1.0" encoding="utf-8"?>
+<station>
+  <available>0</available>
+  <free>0</free>
+  <total>25</total>
+  <ticket>1</ticket>
+  <open>0</open>
+  <updated>1507634830</updated>
+  <connected>0</connected>
+</station>
+
+Also, graphs :
+http://v.mat.cc
+
+Response sample for one page :
+See velibxxx.html
