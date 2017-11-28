@@ -9,7 +9,7 @@ class StationController(val stationRepository: StationRepository) {
 
     @GetMapping("stations")
     fun listStations(model: Model): String {
-        model.addAttribute("stations", stationRepository.findAll())
+        model.addAttribute("stations", stationRepository.findAll().sortedBy { it.id })
         return "stations"
     }
 }

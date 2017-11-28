@@ -24,12 +24,12 @@ class StationControllerTest {
     lateinit var repo: StationRepository
 
     @Test
-    fun `it should get all stations from the repo`() {
-        val stations = listOf(Station(1, "test"), Station(2, "that"))
+    fun `it should get all stations from the repo, sorted`() {
+        val stations = listOf(Station(2, "that"), Station(1, "test"))
         `when`(repo.findAll()).thenReturn(stations)
 
         mockMvc.perform(get("/stations"))
-                .andExpect(model().attribute("stations", stations))
+                .andExpect(model().attribute("stations", stations.reversed()))
                 .andExpect(view().name("stations"))
     }
 
