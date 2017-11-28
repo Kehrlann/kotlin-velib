@@ -1,11 +1,13 @@
 package wf.garnier.velibtest.station
 
 import org.jsoup.Jsoup
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.AsyncRestTemplate
 import wf.garnier.velibtest.VelibConfiguration
+import wf.garnier.velibtest.extensions.getFlowable
+import wf.garnier.velibtest.extensions.waitAll
 
 class StationScrapper(
-        val client: RestTemplate,
+        val client: AsyncRestTemplate,
         val config: VelibConfiguration
 ) {
 
@@ -18,12 +20,11 @@ class StationScrapper(
         }
     }
 
-    internal fun getPage(i: Int) = client.getForObject(config.stationListUrl + "/p-$i/to-2.html", String::class.java)!!
+    internal fun getPage(i: Int) = client.getFlowable(config.stationListUrl + "/p-$i/to-2.html", String::class.java)
 
-    fun getAllStations() = (1..config.pages).map {
-        getPage(it)
-    }.flatMap {
-        parseStationsFromPage(it)
-    }
+    fun getAllStations() = (1..config.pages)
+            .map { getPage(it) }
+            .waitAll()
+            .flatMap { parseStationsFromPage(it.body) }
 
 }
