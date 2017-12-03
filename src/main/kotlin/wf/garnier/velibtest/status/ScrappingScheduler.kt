@@ -1,10 +1,8 @@
 package wf.garnier.velibtest.status
 
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.TextMessage
 import wf.garnier.velibtest.station.StationRepository
-import java.time.LocalDateTime
 
 @Component
 class ScrappingScheduler(
