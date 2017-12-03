@@ -80,6 +80,7 @@ spring:
 -> @XmlRootElement(name = "station")
 -> var all the things, with default value
 
+4. For testing ListenableFuture, think of AsyncResult
 
 
     
