@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.scheduling.annotation.AsyncResult
 import org.springframework.web.client.AsyncRestTemplate
 import wf.garnier.velibtest.VelibConfiguration
+import wf.garnier.velibtest.whenever
 
 
 class StationScrapperTest {
@@ -73,7 +74,7 @@ class StationScrapperTest {
     }
 
     private fun setupResponse(response: String) {
-        Mockito.`when`(mockClient.getForEntity<String>(anyString(), any()))
+        whenever(mockClient.getForEntity<String>(anyString(), any()))
                 .thenReturn(AsyncResult.forValue(ResponseEntity(response, HttpStatus.OK)))
     }
 }

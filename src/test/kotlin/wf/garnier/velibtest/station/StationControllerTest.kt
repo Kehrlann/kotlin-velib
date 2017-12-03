@@ -2,7 +2,6 @@ package wf.garnier.velibtest.station
 
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -11,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.model
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.view
+import wf.garnier.velibtest.whenever
 
 
 @RunWith(SpringRunner::class)
@@ -26,7 +26,7 @@ class StationControllerTest {
     @Test
     fun `it should get all stations from the repo, sorted`() {
         val stations = listOf(Station(2, "that"), Station(1, "test"))
-        `when`(repo.findAll()).thenReturn(stations)
+        whenever(repo.findAll()).thenReturn(stations)
 
         mockMvc.perform(get("/stations"))
                 .andExpect(model().attribute("stations", stations.reversed()))
