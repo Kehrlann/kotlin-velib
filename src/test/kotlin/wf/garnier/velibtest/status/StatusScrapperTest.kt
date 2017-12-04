@@ -21,7 +21,7 @@ class StatusScrapperTest {
                         available = 5,
                         free = 20,
                         total = 25,
-                        ticket = 1,
+                        ticket = true,
                         open = false,
                         updated = 1507634830,
                         connected = false

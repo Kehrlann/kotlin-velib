@@ -11,7 +11,7 @@ data class StatusResponse(
         var available: Int = 0,
         var free: Int = 0,
         var total: Int = 0,
-        var ticket: Int = 0,
+        var ticket: Boolean = false,
         var open: Boolean = false,
         var updated: Long = 0,
         var connected: Boolean = false
