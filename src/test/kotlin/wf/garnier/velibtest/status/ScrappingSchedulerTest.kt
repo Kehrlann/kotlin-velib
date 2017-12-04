@@ -3,10 +3,12 @@ package wf.garnier.velibtest.status
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.mockito.ArgumentCaptor
+import org.mockito.Mockito.anyLong
 import org.mockito.Mockito.mock
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.scheduling.annotation.AsyncResult
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.socket.WebSocketMessage
 import org.springframework.web.socket.WebSocketSession
 import wf.garnier.velibtest.station.Station
@@ -48,7 +50,7 @@ class ScrappingSchedulerTest {
 
         val scrappingScheduler = ScrappingScheduler(mockState, mockRepo, mockScrapper)
 
-        scrappingScheduler.pollAndEmit(false)
+        scrappingScheduler.getStatusAndEmitAllStations()
 
         assertThat(captors.scrapperCaptor.allValues).isEqualTo(stations.map { it.id })
     }
@@ -59,10 +61,28 @@ class ScrappingSchedulerTest {
 
         val scrappingScheduler = ScrappingScheduler(mockState, mockRepo, mockScrapper)
 
-        scrappingScheduler.pollAndEmit(false)
+        scrappingScheduler.getStatusAndEmitAllStations()
 
         val actualMessages = captors.websocketCaptor.allValues.map { it.payload }
         assertThat(actualMessages).isEqualTo(listOf(status, status).map { it.toString() })
+    }
+
+    @Test
+    fun `pollAndEmit should not fail when HTTP fails`() {
+        val httpSuccess = AsyncResult(ResponseEntity(status, HttpStatus.OK))
+
+        val captors = setupReponsesAndCaptors()
+
+        whenever(mockScrapper.getVelibStatus(anyLong()))
+                .thenThrow(HttpClientErrorException(HttpStatus.I_AM_A_TEAPOT))
+                .thenReturn(httpSuccess)
+
+        val scrappingScheduler = ScrappingScheduler(mockState, mockRepo, mockScrapper)
+
+        scrappingScheduler.getStatusAndEmitAllStations()
+
+        val actualMessages = captors.websocketCaptor.allValues.map { it.payload }
+        assertThat(actualMessages).isEqualTo(listOf(status).map { it.toString() })
     }
 
 

@@ -1,5 +1,6 @@
 package wf.garnier.velibtest.status
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.TextMessage
 import wf.garnier.velibtest.station.StationRepository
@@ -10,6 +11,13 @@ class ScrappingScheduler(
         val repo: StationRepository,
         val scrapper: StatusScrapper
 ) {
+    val logger = LoggerFactory.getLogger(ScrappingScheduler::class.java)
+
+    fun startPolling() {
+        while (true) {
+            getStatusAndEmitAllStations()
+        }
+    }
 
     fun emitMessage(message: String) {
         state.currentSessions.forEach {
@@ -17,14 +25,17 @@ class ScrappingScheduler(
         }
     }
 
-    fun pollAndEmit(continuously: Boolean = true) {
-        do {
-            val stations = repo.findAll()
+    fun getStatusAndEmitAllStations() {
+        val stations = repo.findAll()
 
-            stations.forEach {
+        stations.forEach {
+            try {
                 val status = scrapper.getVelibStatus(it.id).get().body
+                logger.debug("Got info for station with id : ${it.id}, emitting.")
                 emitMessage(status.toString())
+            } catch (e: Exception) {
+                logger.error("Error polling stations with id : ${it.id}. Error : ${e.message}.")
             }
-        } while (continuously)
+        }
     }
 }
