@@ -32,7 +32,7 @@ class ScrappingScheduler(
             try {
                 val status = scrapper.getVelibStatus(it.id).get().body
                 logger.debug("Got info for station with id : ${it.id}, emitting.")
-                emitMessage(status.toString())
+                emitMessage(StationStatus(it, status).toString())
             } catch (e: Exception) {
                 logger.error("Error polling stations with id : ${it.id}. Error : ${e.message}.")
             }

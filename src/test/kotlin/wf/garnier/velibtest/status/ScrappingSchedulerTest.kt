@@ -22,8 +22,9 @@ class ScrappingSchedulerTest {
     val mockState = mock(WebsocketState::class.java)
     val mockSession = mock(WebSocketSession::class.java)
     val mockScrapper = mock(StatusScrapper::class.java)
-    val stations = listOf(Station(1), Station(2))
+    val stations = listOf(Station(1, "first"), Station(2, "second"))
     val status = StatusResponse(5, 10, 15)
+    val statuses = stations.map { StationStatus(it, status) }
 
     @Test
     fun `emit sends a message on each session`() {
@@ -64,14 +65,15 @@ class ScrappingSchedulerTest {
         scrappingScheduler.getStatusAndEmitAllStations()
 
         val actualMessages = captors.websocketCaptor.allValues.map { it.payload }
-        assertThat(actualMessages).isEqualTo(listOf(status, status).map { it.toString() })
+        assertThat(actualMessages).isEqualTo(statuses.map { it.toString() })
     }
 
     @Test
     fun `pollAndEmit should not fail when HTTP fails`() {
         val httpSuccess = AsyncResult(ResponseEntity(status, HttpStatus.OK))
 
-        val captors = setupReponsesAndCaptors()
+        // Return the first station twice
+        val captors = setupReponsesAndCaptors(listOf(stations.first(), stations.first()))
 
         whenever(mockScrapper.getVelibStatus(anyLong()))
                 .thenThrow(HttpClientErrorException(HttpStatus.I_AM_A_TEAPOT))
@@ -82,18 +84,20 @@ class ScrappingSchedulerTest {
         scrappingScheduler.getStatusAndEmitAllStations()
 
         val actualMessages = captors.websocketCaptor.allValues.map { it.payload }
-        assertThat(actualMessages).isEqualTo(listOf(status).map { it.toString() })
+        assertThat(actualMessages).isEqualTo(statuses.take(1).map { it.toString() })
     }
 
 
-    private fun setupReponsesAndCaptors(): TestCaptors {
+    private fun setupReponsesAndCaptors(
+            stations: Collection<Station> = this.stations
+    ): TestCaptors {
         // Database
         whenever(mockRepo.findAll()).thenReturn(stations)
 
         // Websocket sessions
         whenever(mockState.currentSessions).thenReturn(mutableListOf(mockSession))
-        val websocketCaptor= ArgumentCaptor.forClass(WebSocketMessage::class.java)
-        whenever(mockSession.sendMessage(websocketCaptor.capture())).thenAnswer {  }
+        val websocketCaptor = ArgumentCaptor.forClass(WebSocketMessage::class.java)
+        whenever(mockSession.sendMessage(websocketCaptor.capture())).thenAnswer { }
 
         // Scrapper
         val scrapperResponse = AsyncResult(ResponseEntity(status, HttpStatus.OK))
