@@ -15,6 +15,7 @@ What we wish to showcase in Kotlin :
     - [ ] Constructor -> also init {} blocks
     - [x] data class -> Everything is a dataclass in this demo
     - [x] properties -> StationStatusResponse, convert integers to booleans
+    - [ ] Delegates, i.e. lazy properties
     - [ ] Functions : named args and default values
     - [ ] Invoke stuff ?
 - [ ] Things around types :
