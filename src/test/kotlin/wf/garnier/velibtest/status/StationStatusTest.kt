@@ -29,4 +29,12 @@ class StationStatusTest {
 
         assertThat(stationStatuses).containsExactly(false, true, true, true)
     }
+
+    @Test
+    fun `it serializes to JSON`() {
+        val stationStatus = StationStatus(0L, "name", 0, 0, true)
+
+        assertThat(stationStatus.toJson())
+                .isEqualTo("""{"id":0,"name":"name","available":0,"free":0,"hasProblem":true}""")
+    }
 }
