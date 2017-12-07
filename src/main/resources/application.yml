@@ -2,3 +2,5 @@ velib:
   stationListUrl: "http://www.parisavelo.net/liste-stations-velib"
   stationDetailUrl: "http://www.velib.paris/service/stationdetails/paris"
   pages: 51
+
+logging.level.wf.garnier: DEBUG

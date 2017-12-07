@@ -33,9 +33,10 @@ class ScrappingScheduler(
 
         stations.forEach {
             try {
-                val status = scrapper.getVelibStatus(it.id).get().body
+//                val status = scrapper.getVelibStatus(it.id).get().body
+                val total = (it.id % 5)
                 logger.debug("Got info for station with id : ${it.id}, emitting.")
-                emitMessage(StationStatus(it, status).toJson())
+                emitMessage(StationStatus(it, StatusResponse(available = 10, free = 25)).toJson())
             } catch (e: Exception) {
                 logger.error("Error polling stations with id : ${it.id}. Error : ${e.message}.")
             }
