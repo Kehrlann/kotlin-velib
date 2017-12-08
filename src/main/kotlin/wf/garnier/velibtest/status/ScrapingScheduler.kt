@@ -12,14 +12,14 @@ import wf.garnier.velibtest.station.Station
 import wf.garnier.velibtest.station.StationRepository
 
 @Component
-class ScrappingScheduler(
+class ScrapingScheduler(
         val state: WebsocketState,
         val repo: StationRepository,
-        val scrapper: StatusScrapper,
+        val scraper: StatusScraper,
         val config: VelibConfiguration
 ) {
-    val logger = LoggerFactory.getLogger(ScrappingScheduler::class.java)
-    val scrappingQueue = Channel<Station>(10)
+    val logger = LoggerFactory.getLogger(ScrapingScheduler::class.java)
+    val scrapingQueue = Channel<Station>(10)
 
     fun startPolling() {
         runBlocking {
@@ -34,7 +34,7 @@ class ScrappingScheduler(
         val stations = repo.findAll()
 
         stations.forEach {
-            scrappingQueue.send(it)
+            scrapingQueue.send(it)
             delay(config.sleepDurationBetweenApiCallsMilliseconds)
         }
     }
@@ -42,7 +42,7 @@ class ScrappingScheduler(
     fun scrape() {
         repeat(5) {
             launch {
-                for (station in scrappingQueue) {
+                for (station in scrapingQueue) {
                     scrapeAndEmit(station)
                 }
             }
@@ -51,7 +51,7 @@ class ScrappingScheduler(
 
     fun scrapeAndEmit(station: Station) {
         try {
-            val status = scrapper.getVelibStatus(station.id).get().body
+            val status = scraper.getVelibStatus(station.id).get().body
             logger.debug("Got info for station with id : ${station.id}, emitting.")
             emitMessage(StationStatus(station, status).toJson())
         } catch (e: Exception) {

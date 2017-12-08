@@ -5,7 +5,7 @@ import org.junit.Test
 import javax.xml.bind.JAXBContext
 
 
-class StatusScrapperTest {
+class StatusScraperTest {
 
     private val velibDetail = javaClass.classLoader.getResourceAsStream("fixtures/velib-status-detail.xml")
 

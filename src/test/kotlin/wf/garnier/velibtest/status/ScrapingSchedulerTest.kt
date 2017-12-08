@@ -17,12 +17,12 @@ import wf.garnier.velibtest.station.StationRepository
 import wf.garnier.velibtest.whenever
 
 
-class ScrappingSchedulerTest {
+class ScrapingSchedulerTest {
 
     val mockRepo = mock(StationRepository::class.java)
     val mockState = mock(WebsocketState::class.java)
     val mockSession = mock(WebSocketSession::class.java)
-    val mockScrapper = mock(StatusScrapper::class.java)
+    val mockscraper = mock(StatusScraper::class.java)
     val stations = listOf(Station(1, "first"), Station(2, "second"))
     val status = StatusResponse(5, 10, 15)
     val statuses = stations.map { StationStatus(it, status) }
@@ -31,9 +31,9 @@ class ScrappingSchedulerTest {
     @Test
     fun `emit sends a message on each session`() {
         val captors = setupReponsesAndCaptors()
-        val scrappingScheduler = ScrappingScheduler(mockState, mockRepo, mockScrapper, config)
+        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
 
-        scrappingScheduler.emitMessage("TEST")
+        scrapingScheduler.emitMessage("TEST")
 
         val actualMessages = captors.websocketCaptor.allValues.map { it.payload }
         assertThat(actualMessages).containsExactly("TEST")
@@ -42,53 +42,53 @@ class ScrappingSchedulerTest {
     @Test
     fun `emit works when there are not sessions`() {
         setupReponsesAndCaptors()
-        val scrappingScheduler = ScrappingScheduler(mockState, mockRepo, mockScrapper, config)
+        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
 
-        scrappingScheduler.emitMessage("TEST")
+        scrapingScheduler.emitMessage("TEST")
     }
 
     @Test
     fun `scrapeStation should poll all available stations`() {
         val captors = setupReponsesAndCaptors()
 
-        val scrappingScheduler = ScrappingScheduler(mockState, mockRepo, mockScrapper, config)
+        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
 
-        scrappingScheduler.scrapeAndEmit(stations.first())
+        scrapingScheduler.scrapeAndEmit(stations.first())
 
-        assertThat(captors.scrapperCaptor.value).isEqualTo(stations.first().id)
+        assertThat(captors.scraperCaptor.value).isEqualTo(stations.first().id)
     }
 
     @Test
     fun `scrapeStation should send message through websocket`() {
         val captors = setupReponsesAndCaptors()
 
-        val scrappingScheduler = ScrappingScheduler(mockState, mockRepo, mockScrapper, config)
+        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
 
-        scrappingScheduler.scrapeAndEmit(stations.first())
+        scrapingScheduler.scrapeAndEmit(stations.first())
 
         assertThat(captors.websocketCaptor.value.payload).isEqualTo(statuses.first().toJson())
     }
 
     @Test
     fun `scrapeStation should not fail when HTTP fails`() {
-        whenever(mockScrapper.getVelibStatus(anyLong()))
+        whenever(mockscraper.getVelibStatus(anyLong()))
                 .thenThrow(HttpClientErrorException(HttpStatus.I_AM_A_TEAPOT))
 
-        val scrappingScheduler = ScrappingScheduler(mockState, mockRepo, mockScrapper, config)
+        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
 
-        scrappingScheduler.scrapeAndEmit(stations.first())
+        scrapingScheduler.scrapeAndEmit(stations.first())
     }
 
     @Test
     fun `scrape relies on scrapeAndEmit`() {
-        val scrappingScheduler = ScrappingScheduler(mockState, mockRepo, mockScrapper, config)
-        val spy = spy(scrappingScheduler)
+        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
+        val spy = spy(scrapingScheduler)
 
         spy.scrape()
 
         runBlocking {
             (1L..5L).forEach {
-                spy.scrappingQueue.send(Station(it))
+                spy.scrapingQueue.send(Station(it))
             }
         }
 
@@ -97,15 +97,15 @@ class ScrappingSchedulerTest {
     }
 
     @Test
-    fun `scheduleScapes schedules the stations to be scrapped`() {
+    fun `scheduleScapes schedules the stations to be scraped`() {
         setupReponsesAndCaptors()
-        val scrappingScheduler = ScrappingScheduler(mockState, mockRepo, mockScrapper, config)
+        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
         val received = mutableListOf<Station>()
 
         runBlocking {
-            scrappingScheduler.scheduleScrapes()
+            scrapingScheduler.scheduleScrapes()
             stations.forEach {
-                received.add(scrappingScheduler.scrappingQueue.receive())
+                received.add(scrapingScheduler.scrapingQueue.receive())
             }
         }
         assertThat(received).isEqualTo(stations)
@@ -122,14 +122,14 @@ class ScrappingSchedulerTest {
         val websocketCaptor = ArgumentCaptor.forClass(WebSocketMessage::class.java)
         whenever(mockSession.sendMessage(websocketCaptor.capture())).thenAnswer { }
 
-        // Scrapper
-        val scrapperResponse = AsyncResult(ResponseEntity(status, HttpStatus.OK))
-        val scrapperCaptor = ArgumentCaptor.forClass(Long::class.java)
-        whenever(mockScrapper.getVelibStatus(scrapperCaptor.capture())).thenReturn(scrapperResponse)
+        // scraper
+        val scraperResponse = AsyncResult(ResponseEntity(status, HttpStatus.OK))
+        val scraperCaptor = ArgumentCaptor.forClass(Long::class.java)
+        whenever(mockscraper.getVelibStatus(scraperCaptor.capture())).thenReturn(scraperResponse)
 
-        return TestCaptors(scrapperCaptor, websocketCaptor)
+        return TestCaptors(scraperCaptor, websocketCaptor)
     }
 
-    private class TestCaptors(val scrapperCaptor: ArgumentCaptor<Long>, val websocketCaptor: ArgumentCaptor<WebSocketMessage<*>>)
+    private class TestCaptors(val scraperCaptor: ArgumentCaptor<Long>, val websocketCaptor: ArgumentCaptor<WebSocketMessage<*>>)
 
 }

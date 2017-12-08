@@ -6,7 +6,7 @@ import wf.garnier.velibtest.VelibConfiguration
 import wf.garnier.velibtest.extensions.getFlowable
 import wf.garnier.velibtest.extensions.waitAll
 
-class StationScrapper(
+class StationScraper(
         val client: AsyncRestTemplate,
         val config: VelibConfiguration
 ) {

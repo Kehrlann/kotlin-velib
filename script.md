@@ -72,7 +72,7 @@ spring:
 7. Interesting stuff for command-line-runner
 
 
-## Velib station scrapper
+## Velib station scraper
 1. This is an interesting use of channels and launch { }
 
 2. Handle exceptions when scraping !

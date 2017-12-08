@@ -11,19 +11,19 @@ import wf.garnier.velibtest.VelibConfiguration
 import wf.garnier.velibtest.whenever
 
 
-class StationScrapperTest {
+class StationScraperTest {
     private val onePageOfStations =
             javaClass.classLoader.getResourceAsStream("fixtures/velib-station-list.html").reader().readText()
     val mockClient = mock(AsyncRestTemplate::class.java)
 
     @Test
     fun `it should get a given page`() {
-        val stationScrapper = StationScrapper(mockClient, VelibConfiguration())
+        val stationscraper = StationScraper(mockClient, VelibConfiguration())
         val httpBody = "myPageReturn"
 
         setupResponse(httpBody)
 
-        val page = stationScrapper.getPage(12).blockingLast().body
+        val page = stationscraper.getPage(12).blockingLast().body
 
         assertThat(page).isEqualTo(httpBody)
     }
@@ -31,10 +31,10 @@ class StationScrapperTest {
     @Test
     fun `it should touch the correct page endpoint`() {
         val endpoint = "test-url"
-        val stationScrapper = StationScrapper(mockClient, VelibConfiguration(stationListUrl = endpoint))
+        val stationscraper = StationScraper(mockClient, VelibConfiguration(stationListUrl = endpoint))
         setupResponse("")
 
-        stationScrapper.getPage(12)
+        stationscraper.getPage(12)
 
         verify(mockClient).getForEntity(eq("test-url/p-12/to-2.html"), eq(String::class.java))
     }
@@ -42,10 +42,10 @@ class StationScrapperTest {
     @Test
     fun `it should get all pages`() {
         val pages = 12
-        val stationScrapper = StationScrapper(mockClient, VelibConfiguration(pages = pages))
+        val stationscraper = StationScraper(mockClient, VelibConfiguration(pages = pages))
         setupResponse("")
 
-        stationScrapper.getAllStations()
+        stationscraper.getAllStations()
 
         (1..12).forEach {
             verify(mockClient).getForEntity(contains("/p-$it/"), eq(String::class.java))
@@ -54,9 +54,9 @@ class StationScrapperTest {
 
     @Test
     fun `it should scrape all stations from a page`() {
-        val stationScrapper = StationScrapper(mockClient, VelibConfiguration())
+        val stationscraper = StationScraper(mockClient, VelibConfiguration())
 
-        val stations = stationScrapper.parseStationsFromPage(onePageOfStations)
+        val stations = stationscraper.parseStationsFromPage(onePageOfStations)
 
         assertThat(stations)
                 .contains(Station(1020, "RIVOLI CONCORDE"), Station(1002, "PLACE DU CHATELET"))
@@ -64,10 +64,10 @@ class StationScrapperTest {
 
     @Test
     fun `it should get all stations`() {
-        val stationScrapper = StationScrapper(mockClient, VelibConfiguration())
+        val stationscraper = StationScraper(mockClient, VelibConfiguration())
         setupResponse(onePageOfStations)
 
-        val stations = stationScrapper.getAllStations()
+        val stations = stationscraper.getAllStations()
 
         assertThat(stations.size).isEqualTo(1275)
     }
