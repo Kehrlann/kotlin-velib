@@ -1,3 +1,5 @@
+// Example data for local testing
+
 const raw_data = [
     {"id":1001,"name":"NO NAME","available":11,"free":1,"hasProblem":false},
     {"id":1002,"name":"NO NAME","available":9,"free":12,"hasProblem":false},
@@ -1123,21 +1125,22 @@ const raw_data = [
     {"id":44102,"name":"NO NAME","available":0,"free":0,"hasProblem":true},
     {"id":60001,"name":"NO NAME","available":0,"free":0,"hasProblem":true}
 ].filter(d => !d.hasProblem)
-    .slice(0, 20);
+    .slice(0, 50);
 
-let data = [];
+let data = raw_data;
 
 setInterval(
     () => {
-        data = raw_data.slice(0, (data.length + 1) % (raw_data.length)).sort((b, a) =>
-            {
-                const totalDiff = (a.available + a.free) - (b.available + b.free);
-                if (totalDiff !== 0) return totalDiff;
-
-                return a.free - b.free;
+        data = data.map(d => {
+            if(d.free === 0) {
+                return d;
             }
-        );
-        oneShot();
+            let free = Math.floor(d.free / 2);
+            let available = d.available + free;
+            let after = Object.assign({}, d, {available: available, free: free});
+            return after;
+        });
+        updateSvgData(data);
     },
-    100
+    1000
 );

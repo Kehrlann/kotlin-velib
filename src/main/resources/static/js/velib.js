@@ -1,6 +1,47 @@
 const websockets = [];
 
-const WIDTH = 1000, HEIGHT = 400, MARGIN_LEFT = 50, MARGIN_BOTTOM = 50;
+const WIDTH = 1000;
+const HEIGHT = 400;
+const MARGIN_LEFT = 50;
+const MARGIN_BOTTOM = 50;
+const TRANSITION_DURATION_MS = 2000;
+const BUFFER_SIZE = 50;
+
+const velib_data = {};
+const messageBuffer = [];
+
+/*****************************************
+ * d3 extensions setup
+ *****************************************/
+d3.selection.prototype.setPosition = function (xScale, yFunc, heightFunc) {
+    return this
+        .attr("x", d => xScale(d.id))
+        .attr("y", yFunc)
+        .attr("height", heightFunc);
+};
+
+d3.selection.prototype.setPositionFree = function (xScale, yScale, maxDomain) {
+    return this.setPosition(xScale, d => yScale(maxDomain - d.free), d => yScale(d.free));
+};
+
+
+d3.selection.prototype.setPositionAvailable = function (xScale, yScale, maxDomain) {
+    return this.setPosition(xScale, d => yScale(maxDomain - (d.free + d.available)), d => yScale(d.available));
+};
+
+
+d3.selection.prototype.transitionToFullWidthBar = function (xScale) {
+    this
+        .attr("width", 0)
+        .transition()
+        .duration(TRANSITION_DURATION_MS)
+        .attr("width", (d, i) => xScale.bandwidth());
+};
+
+
+d3.transition.prototype.setPosition = d3.selection.prototype.setPosition;
+d3.transition.prototype.setPositionFree = d3.selection.prototype.setPositionFree;
+d3.transition.prototype.setPositionAvailable = d3.selection.prototype.setPositionAvailable;
 
 /*****************************************
  * Websocketty stuff
@@ -13,13 +54,38 @@ function startConnection(onmessageCallback) {
 
 function startPrintingConnection() {
     const printingCallback = function (event) {
-        var msg = event.data;
+        const msg = event.data;
 
-        var existingMessages = document.getElementById("messages").innerHTML;
-        var newMessage = "<div>" + msg + "</div>";
+        const existingMessages = document.getElementById("messages").innerHTML;
+        const newMessage = "<div>" + msg + "</div>";
         document.getElementById("messages").innerHTML = newMessage + existingMessages;
     };
     startConnection(printingCallback);
+}
+
+function d3WebsocketCallback(event) {
+    const data = JSON.parse(event.data);
+    if (data.hasProblem) {
+        console.error("Problem with station", data);
+        return;
+    }
+
+    if (messageBuffer.length < BUFFER_SIZE) {
+        messageBuffer.push(data);
+    } else {
+        messageBuffer.splice(0, BUFFER_SIZE).forEach(
+            d => {
+                velib_data[d.id] = d;
+                updateSvgData(Object.values(velib_data).sort(sortStation));
+            }
+        )
+    }
+}
+
+function startd3Connection() {
+    if (websockets.length === 0) {
+        startConnection(d3WebsocketCallback);
+    }
 }
 
 function sendMessage() {
@@ -37,20 +103,20 @@ function closeConnections() {
     websockets.splice(0, websockets.length);
 }
 
-function cleanMessages() {
-    document.getElementById("messages").innerHTML = "";
-}
-
 /*****************************************
  * dee-three-y stuff
  *****************************************/
+function sortStation(a, b) {
+    const totalDiff = (b.available + b.free) - (a.available + a.free);
+    if (totalDiff !== 0) return totalDiff;
 
-function oneShot() {
-    // 1. Create scales (scaleband ?)
-    // 2. Create axes ... ?
-    // 3. Add data
+    return b.free - a.free;
+}
 
-    const maxTotal = d3.max(data, d => d.available);
+function updateSvgData(data) {
+    // TODO : add axes ?
+    console.log("UPDATE", data[0]);
+    const maxTotal = d3.max(data, d => d.available + d.free);
 
     const yScale = d3
         .scaleLinear()
@@ -75,53 +141,35 @@ function oneShot() {
         .append("g")
         .attr("class", "rectangle");
 
-
-    // Red stuff
-    // newGroup
-    //     .append("rect")
-    //     // .filter(d => d.hasProblem)
-    //     .attr("class", "red")
-    //     .attr("x", d => xScale(d.id))
-    //     .attr("width", (d, i) => xScale.bandwidth())
-    //     .attr("y", 0)
-    //     .attr("height", HEIGHT)
-    //     .style("fill", "LIGHTCORAL");
-
     allRects.select("rect.free")
-        .transition(1000)
-        .attr("x", d => xScale(d.id))
+        .transition()
+        .duration(TRANSITION_DURATION_MS)
         .attr("width", (d, i) => xScale.bandwidth())
-        .attr("y", d => yScale(maxTotal - d.free))
-        .attr("height", d => yScale(d.free));
+        .setPositionFree(xScale, yScale, maxTotal);
+
 
     allRects.select("rect.available")
-        .transition(1000)
-        .attr("x", d => xScale(d.id))
+        .transition()
+        .duration(TRANSITION_DURATION_MS)
         .attr("width", (d, i) => xScale.bandwidth())
-        .attr("y", d => yScale(maxTotal - (d.free + d.available)))
-        .attr("height", d => yScale(d.available));
+        .setPositionAvailable(xScale, yScale, maxTotal);
+
 
     newGroup
         .append("rect")
         .style("fill", "MEDIUMORCHID")
         .attr("class", "free")
-        // .filter(d => !d.hasProblem)
-        .attr("x", d => xScale(d.id))
-        .attr("y", d => yScale(maxTotal - d.free))
-        .attr("height", d => yScale(d.free))
-        .attr("width", 0)
-        .transition(1000)
-        .attr("width", (d, i) => xScale.bandwidth());
+        .setPositionFree(xScale, yScale, maxTotal)
+        .transitionToFullWidthBar(xScale);
 
     newGroup
         .append("rect")
         .style("fill", "DARKTURQUOISE")
         .attr("class", "available")
-        // .filter(d => !d.hasProblem)
-        .attr("x", d => xScale(d.id))
-        .attr("y", d => yScale(maxTotal - (d.free + d.available)))
-        .attr("height", d => yScale(d.available))
-        .attr("width", 0)
-        .transition(1000)
-        .attr("width", (d, i) => xScale.bandwidth())
+        .setPositionAvailable(xScale, yScale, maxTotal)
+        .transitionToFullWidthBar(xScale);
+}
+
+function cleanMessages() {
+    document.getElementById("messages").innerHTML = "";
 }
