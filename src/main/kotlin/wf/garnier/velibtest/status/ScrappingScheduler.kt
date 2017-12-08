@@ -15,7 +15,6 @@ class ScrappingScheduler(
 ) {
     val logger = LoggerFactory.getLogger(ScrappingScheduler::class.java)
 
-
     fun startPolling() {
         while (true) {
             getStatusAndEmitAllStations()

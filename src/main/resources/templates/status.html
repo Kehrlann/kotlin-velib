@@ -3,50 +3,23 @@
 <head>
     <meta charset="UTF-8" />
     <title>Status</title>
-    <script>
-        var websockets = [];
-
-        function startConnection() {
-            const socket = new WebSocket("ws://localhost:8080/ws/status");
-            socket.onmessage = function (event) {
-                var msg = event.data;
-
-                var existingMessages = document.getElementById("messages").innerHTML;
-                var newMessage = "<div>" + msg + "</div>";
-                document.getElementById("messages").innerHTML = newMessage + existingMessages;
-            };
-            websockets.push(socket);
-        }
-
-        function sendMessage() {
-            websockets.forEach(function (ws, i) {
-                ws.send("Hi ! From " +i + "th connection. Date is : " + new Date())
-            });
-        }
-
-        function closeConnections() {
-            websockets.forEach(function (ws) {
-                ws.close();
-            });
-
-            websockets = [];
-        }
-
-        function cleanMessages() {
-            document.getElementById("messages").innerHTML = "";
-        }
-    </script>
+    <script src="js/d3.v4.min.js"></script>
+    <!--<script src="js/velib_data.js"></script>-->
+    <script src="js/velib.js"></script>
 </head>
 <body>
 <h1>Hello from the status page</h1>
 <h2>Controls</h2>
-<button id="add" onclick="startConnection()">Add connection</button>
+<button id="add" onclick="startPrintingConnection()">Add connection</button>
 <button id="send" onclick="sendMessage()">Send message</button>
 <button id="close" onclick="closeConnections()">Close connections</button>
 <button id="clean" onclick="cleanMessages()">Clean messages</button>
 <h2>Controls</h2>
 <div id="messages">
 </div>
+
+<svg width="100%" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid meet"></svg>
+<script>startd3Connection();</script>
 </body>
 
 </html>
