@@ -24,19 +24,20 @@ class ScrapingScheduler(
     fun startPolling() {
         runBlocking {
             scrape()
-            while(true) {
+            while (true) {
                 scheduleScrapes()
             }
         }
     }
 
     suspend fun scheduleScrapes() {
-        val stations = repo.findAll()
 
-        stations.forEach {
-            scrapingQueue.send(it)
-            delay(config.sleepDurationBetweenApiCallsMilliseconds)
-        }
+        repo.findAll()
+                .take(config.limitPollingTo)
+                .forEach {
+                    scrapingQueue.send(it)
+                    delay(config.sleepDurationBetweenApiCallsMilliseconds)
+                }
     }
 
     fun scrape() {

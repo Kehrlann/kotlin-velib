@@ -4,8 +4,8 @@ const WIDTH = 1000;
 const HEIGHT = 400;
 const MARGIN_LEFT = 50;
 const MARGIN_BOTTOM = 50;
-const TRANSITION_DURATION_MS = 100;
-const BUFFER_SIZE = 5;
+const TRANSITION_DURATION_MS = 1000;
+const BUFFER_SIZE = 10;
 
 const velib_data = {};
 const messageBuffer = [];
@@ -66,7 +66,7 @@ function startPrintingConnection() {
 function d3WebsocketCallback(event) {
     const data = JSON.parse(event.data);
     if (data.hasProblem) {
-        console.error("Problem with station", data);
+        // console.error("Problem with station", data);
         return;
     }
 
@@ -115,7 +115,7 @@ function sortStation(a, b) {
 
 function updateSvgData(data) {
     // TODO : add axes ?
-    console.log("UPDATE", data[0]);
+    // console.log("UPDATE", data[0]);
     const maxTotal = d3.max(data, d => d.available + d.free);
 
     const yScale = d3
