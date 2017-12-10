@@ -10,6 +10,6 @@ data class VelibConfiguration(
         var stationDetailUrl: String = "",
         var pages: Int = 51,
         var sleepDurationBetweenApiCallsMilliseconds: Long = 1000L,
-        var limitPollingTo: Int = 200
+        var maxNumberOfStationsToPoll: Int = 200
 )
 // FIXME: nest configurations ?

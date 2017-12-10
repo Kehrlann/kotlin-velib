@@ -33,7 +33,7 @@ class ScrapingScheduler(
     suspend fun scheduleScrapes() {
 
         repo.findAll()
-                .take(config.limitPollingTo)
+                .take(config.maxNumberOfStationsToPoll)
                 .forEach {
                     scrapingQueue.send(it)
                     delay(config.sleepDurationBetweenApiCallsMilliseconds)
