@@ -13,6 +13,7 @@
 
     <modules>
         <module>velib-app</module>
+        <module>mock-server</module>
     </modules>
 
 </project>
