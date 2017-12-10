@@ -7,7 +7,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket
 
 @SpringBootApplication
 @EnableWebSocket
-@EnableScheduling
 class VelibTestApplication
 
 fun main(args: Array<String>) {
