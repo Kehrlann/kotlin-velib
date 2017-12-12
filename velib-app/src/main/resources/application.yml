@@ -1,7 +1,8 @@
 velib:
   stationListUrl: "http://www.parisavelo.net/liste-stations-velib"
-  stationDetailUrl: "http://www.velib.paris/service/stationdetails/paris"
+#  stationDetailUrl: "http://www.velib.paris/service/stationdetails/paris"
+  stationDetailUrl: "http://localhost:8081"
   pages: 51
-  sleepDurationBetweenApiCallsMilliseconds: 200
+  sleepDurationBetweenApiCallsMilliseconds: 0
 
 logging.level.wf.garnier: DEBUG

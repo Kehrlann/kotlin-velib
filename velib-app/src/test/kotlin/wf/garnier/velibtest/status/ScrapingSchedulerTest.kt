@@ -53,7 +53,7 @@ class ScrapingSchedulerTest {
 
         val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
 
-        scrapingScheduler.scrapeAndEmit(stations.first())
+        runBlocking { scrapingScheduler.scrapeAndEmit(stations.first()) }
 
         assertThat(captors.scraperCaptor.value).isEqualTo(stations.first().id)
     }
@@ -64,7 +64,7 @@ class ScrapingSchedulerTest {
 
         val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
 
-        scrapingScheduler.scrapeAndEmit(stations.first())
+        runBlocking { scrapingScheduler.scrapeAndEmit(stations.first()) }
 
         assertThat(captors.websocketCaptor.value.payload).isEqualTo(statuses.first().toJson())
     }
@@ -76,7 +76,7 @@ class ScrapingSchedulerTest {
 
         val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
 
-        scrapingScheduler.scrapeAndEmit(stations.first())
+        runBlocking { scrapingScheduler.scrapeAndEmit(stations.first()) }
     }
 
     @Test
@@ -93,7 +93,7 @@ class ScrapingSchedulerTest {
         }
 
         fun anyStatus() = any() ?: Station()
-        verify(spy, times(5)).scrapeAndEmit(anyStatus())
+        runBlocking { verify(spy, times(5)).scrapeAndEmit(anyStatus()) }
     }
 
     @Test

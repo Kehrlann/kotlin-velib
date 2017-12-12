@@ -5,7 +5,9 @@ const HEIGHT = 400;
 const MARGIN_LEFT = 50;
 const MARGIN_BOTTOM = 50;
 const TRANSITION_DURATION_MS = 1000;
-const BUFFER_SIZE = 10;
+const BUFFER_SIZE = 1;
+let total_received = 0;
+let last_received = new Date();
 
 const velib_data = {};
 const messageBuffer = [];
@@ -64,6 +66,14 @@ function startPrintingConnection() {
 }
 
 function d3WebsocketCallback(event) {
+
+    total_received++;
+    if(total_received % 10 === 0) {
+        const tempDate = new Date();
+        console.log("It took", (tempDate - last_received), "ms to receive 10 data points.");
+        last_received = tempDate;
+    }
+
     const data = JSON.parse(event.data);
     if (data.hasProblem) {
         // console.error("Problem with station", data);

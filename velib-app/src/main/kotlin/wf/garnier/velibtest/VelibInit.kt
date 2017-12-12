@@ -6,13 +6,14 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.AsyncRestTemplate
 import wf.garnier.velibtest.station.StationRepository
 import wf.garnier.velibtest.station.StationScraper
+import wf.garnier.velibtest.status.IScrapingScheduler
 import wf.garnier.velibtest.status.ScrapingScheduler
 
 @Component
 @Profile("!test")
 class VelibInit(
         val stationRepository: StationRepository,
-        val statusscraper: ScrapingScheduler,
+        val statusscraper: IScrapingScheduler,
         val velibConfiguration: VelibConfiguration
 ) : CommandLineRunner {
 
