@@ -2,6 +2,7 @@ package wf.garnier.velibtest.status
 
 import kotlinx.coroutines.experimental.runBlocking
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
@@ -17,7 +18,7 @@ import wf.garnier.velibtest.station.StationRepository
 import wf.garnier.velibtest.whenever
 
 
-class ScrapingSchedulerTest {
+class AsyncScrapingSchedulerTest {
 
     val mockRepo = mock(StationRepository::class.java)
     val mockState = mock(WebsocketState::class.java)
@@ -31,7 +32,7 @@ class ScrapingSchedulerTest {
     @Test
     fun `emit sends a message on each session`() {
         val captors = setupReponsesAndCaptors()
-        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
+        val scrapingScheduler = AsyncScrapingScheduler(mockState, mockRepo, mockscraper, config)
 
         scrapingScheduler.emitMessage("TEST")
 
@@ -42,7 +43,7 @@ class ScrapingSchedulerTest {
     @Test
     fun `emit works when there are not sessions`() {
         setupReponsesAndCaptors()
-        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
+        val scrapingScheduler = AsyncScrapingScheduler(mockState, mockRepo, mockscraper, config)
 
         scrapingScheduler.emitMessage("TEST")
     }
@@ -51,7 +52,7 @@ class ScrapingSchedulerTest {
     fun `scrapeStation should poll all available stations`() {
         val captors = setupReponsesAndCaptors()
 
-        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
+        val scrapingScheduler = AsyncScrapingScheduler(mockState, mockRepo, mockscraper, config)
 
         runBlocking { scrapingScheduler.scrapeAndEmit(stations.first()) }
 
@@ -62,7 +63,7 @@ class ScrapingSchedulerTest {
     fun `scrapeStation should send message through websocket`() {
         val captors = setupReponsesAndCaptors()
 
-        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
+        val scrapingScheduler = AsyncScrapingScheduler(mockState, mockRepo, mockscraper, config)
 
         runBlocking { scrapingScheduler.scrapeAndEmit(stations.first()) }
 
@@ -74,32 +75,15 @@ class ScrapingSchedulerTest {
         whenever(mockscraper.getVelibStatus(anyLong()))
                 .thenThrow(HttpClientErrorException(HttpStatus.I_AM_A_TEAPOT))
 
-        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
+        val scrapingScheduler = AsyncScrapingScheduler(mockState, mockRepo, mockscraper, config)
 
         runBlocking { scrapingScheduler.scrapeAndEmit(stations.first()) }
     }
 
     @Test
-    fun `scrape relies on scrapeAndEmit`() {
-        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
-        val spy = spy(scrapingScheduler)
-
-        spy.scrape()
-
-        runBlocking {
-            (1L..5L).forEach {
-                spy.scrapingQueue.send(Station(it))
-            }
-        }
-
-        fun anyStatus() = any() ?: Station()
-        runBlocking { verify(spy, times(5)).scrapeAndEmit(anyStatus()) }
-    }
-
-    @Test
-    fun `scheduleScapes schedules the stations to be scraped`() {
+    fun `scheduleScrapes schedules the stations to be scraped`() {
         setupReponsesAndCaptors()
-        val scrapingScheduler = ScrapingScheduler(mockState, mockRepo, mockscraper, config)
+        val scrapingScheduler = AsyncScrapingScheduler(mockState, mockRepo, mockscraper, config)
         val received = mutableListOf<Station>()
 
         runBlocking {
@@ -118,7 +102,7 @@ class ScrapingSchedulerTest {
         whenever(mockRepo.findAll()).thenReturn(stations)
 
         // Websocket sessions
-        whenever(mockState.currentSessions).thenReturn(mutableListOf(mockSession))
+        whenever(mockState.asyncSessions).thenReturn(mutableListOf(mockSession))
         val websocketCaptor = ArgumentCaptor.forClass(WebSocketMessage::class.java)
         whenever(mockSession.sendMessage(websocketCaptor.capture())).thenAnswer { }
 

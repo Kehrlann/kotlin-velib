@@ -13,8 +13,6 @@ class Controller {
 
     @GetMapping("/{id}", produces = arrayOf("application/xml"))
     fun getStation(@PathVariable("id") id: Int): StatusResponse {
-        if(id % 2 == 0)
-            return StatusResponse(open = false)
         val total = totalBikes(id)
         val available = availableBikes(total)
         val free = total - available

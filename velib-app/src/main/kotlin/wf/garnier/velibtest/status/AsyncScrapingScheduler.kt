@@ -4,7 +4,6 @@ import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.future.await
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
@@ -15,18 +14,17 @@ import wf.garnier.velibtest.station.Station
 import wf.garnier.velibtest.station.StationRepository
 
 @Component
-@Profile("!sync")
-class ScrapingScheduler(
+class AsyncScrapingScheduler(
         val state: WebsocketState,
         val repo: StationRepository,
         val scraper: StatusScraper,
         val config: VelibConfiguration
 ) : IScrapingScheduler {
-    val logger = LoggerFactory.getLogger(ScrapingScheduler::class.java)
+    val logger = LoggerFactory.getLogger(AsyncScrapingScheduler::class.java)
     val scrapingQueue = Channel<Station>(10)
 
     override fun startPolling() {
-        runBlocking {
+        launch {
             scrape()
             while (true) {
                 scheduleScrapes()
@@ -39,8 +37,13 @@ class ScrapingScheduler(
         repo.findAll()
                 .take(config.maxNumberOfStationsToPoll)
                 .forEach {
-                    scrapingQueue.send(it)
-                    delay(config.sleepDurationBetweenApiCallsMilliseconds)
+                    if(state.asyncSessions.size > 0){
+                        scrapingQueue.send(it)
+                        delay(config.sleepDurationBetweenApiCallsMilliseconds)
+                    }
+                    else {
+                        delay(1000L)
+                    }
                 }
     }
 
@@ -65,7 +68,7 @@ class ScrapingScheduler(
     }
 
     fun emitMessage(message: String) {
-        state.currentSessions.forEach {
+        state.asyncSessions.forEach {
             it.sendMessage(TextMessage(message))
         }
     }

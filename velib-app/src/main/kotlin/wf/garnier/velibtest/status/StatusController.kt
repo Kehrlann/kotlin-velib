@@ -8,4 +8,7 @@ class StatusController {
 
     @GetMapping("status")
     fun statusPage() = "status"
+
+    @GetMapping("metrics")
+    fun metricsPage() = "metrics"
 }

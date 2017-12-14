@@ -6,5 +6,6 @@ import java.util.*
 
 @Component
 class WebsocketState {
-    val currentSessions: MutableList<WebSocketSession> = Collections.synchronizedList(mutableListOf())
+    val asyncSessions: MutableList<WebSocketSession> = Collections.synchronizedList(mutableListOf())
+    val syncSessions: MutableList<WebSocketSession> = Collections.synchronizedList(mutableListOf())
 }

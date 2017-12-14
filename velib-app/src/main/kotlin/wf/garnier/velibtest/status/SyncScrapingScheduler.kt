@@ -1,5 +1,6 @@
 package wf.garnier.velibtest.status
 
+import kotlinx.coroutines.experimental.launch
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
@@ -8,23 +9,24 @@ import wf.garnier.velibtest.VelibConfiguration
 import wf.garnier.velibtest.station.StationRepository
 
 @Component
-@Profile("sync")
 class SyncScrapingScheduler(
         val state: WebsocketState,
         val repo: StationRepository,
         val scraper: StatusScraper,
         val config: VelibConfiguration
-): IScrapingScheduler {
-    val logger = LoggerFactory.getLogger(ScrapingScheduler::class.java)
+) : IScrapingScheduler {
+    val logger = LoggerFactory.getLogger(AsyncScrapingScheduler::class.java)
 
     override fun startPolling() {
-        while (true) {
-            getStatusAndEmitAllStations()
+        launch {
+            while (true) {
+                getStatusAndEmitAllStations()
+            }
         }
     }
 
     fun emitMessage(message: String) {
-        state.currentSessions.forEach {
+        state.syncSessions.forEach {
             it.sendMessage(TextMessage(message))
         }
     }
@@ -33,6 +35,10 @@ class SyncScrapingScheduler(
         val stations = repo.findAll()
 
         stations.forEach {
+            if(state.syncSessions.size == 0) {
+                return@forEach  // equivalent to java "continue"
+            }
+
             try {
                 val status = scraper.getVelibStatus(it.id).get().body
                 logger.debug("Got info for station with id : ${it.id}, emitting.")

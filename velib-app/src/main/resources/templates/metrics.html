@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Status</title>
+    <script src="js/velib.js"></script>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1>Metrics</h1>
+
+<div class="layout horizontal">
+    <div class="column">
+        <h2>Synchronous</h2>
+        <button onClick="startMonitoringConnection('sync')">Start measuring</button>
+        <button onClick="stopMonitoring()">Stop</button>
+        <div class="sync messages"></div>
+    </div>
+
+    <div class="column">
+        <h2>Asynchronous (20 coroutines, ~20x faster)</h2>
+        <button onClick="startMonitoringConnection('async')">Start measuring</button>
+        <button onClick="stopMonitoring()">Stop</button>
+        <div class="async messages"></div>
+    </div>
+</div>
+</body>
+
+</html>

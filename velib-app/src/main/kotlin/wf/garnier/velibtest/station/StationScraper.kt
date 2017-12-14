@@ -26,5 +26,4 @@ class StationScraper(
             .map { getPage(it) }
             .waitAll()
             .flatMap { parseStationsFromPage(it.body) }
-
 }

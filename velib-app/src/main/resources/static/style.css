@@ -15,3 +15,21 @@ table > tbody > tr > td {
 table > tbody > tr:nth-child(even) {
     background-color: #eee;
 }
+
+.layout {
+    width: 100%;
+}
+
+.horizontal {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-around;
+}
+
+.column {
+    flex: 1;
+}
+
+.messages {
+    margin-top: 20px;
+}

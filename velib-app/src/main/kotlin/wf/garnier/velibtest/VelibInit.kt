@@ -7,20 +7,23 @@ import org.springframework.web.client.AsyncRestTemplate
 import wf.garnier.velibtest.station.StationRepository
 import wf.garnier.velibtest.station.StationScraper
 import wf.garnier.velibtest.status.IScrapingScheduler
-import wf.garnier.velibtest.status.ScrapingScheduler
 
 @Component
 @Profile("!test")
 class VelibInit(
         val stationRepository: StationRepository,
-        val statusscraper: IScrapingScheduler,
+        val scrapers: Collection<IScrapingScheduler>,
         val velibConfiguration: VelibConfiguration
 ) : CommandLineRunner {
 
     override fun run(vararg args: String?) {
-        val scraper = StationScraper(AsyncRestTemplate(), velibConfiguration)
-        scraper.getAllStations().forEach { stationRepository.save(it) }
+        if(stationRepository.count() == 0L) {
+            val scraper = StationScraper(AsyncRestTemplate(), velibConfiguration)
+            scraper.getAllStations().forEach { stationRepository.save(it) }
+        }
 
-        statusscraper.startPolling()
+        scrapers.forEach {
+            it.startPolling()
+        }
     }
 }
